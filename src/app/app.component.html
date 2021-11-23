@@ -1,0 +1,221 @@
+<!-- Page header -->
+<hello name="{{ name }}"></hello>
+
+<!-- Page content -->
+<div class="basic-container">
+  <mat-card>
+    <!-- Page form start -->
+    <form
+      [formGroup]="exampleForm"
+      novalidate
+      (ngSubmit)="save(exampleForm.value, exampleForm.valid,$event)"
+    >
+      <mat-card-title>Reactive form</mat-card-title>
+      <mat-card-content>
+        <div
+          fxLayout="row"
+          fxLayout.xs="column"
+          fxLayoutWrap
+          fxLayoutGap="3.5%"
+          fxLayoutAlign="left"
+        >
+          <!-- Comapny name input field -->
+          <mat-form-field class="example-full-width" fxFlex="75%">
+            <input
+              matInput
+              placeholder="Company name"
+              formControlName="companyName"
+              required
+            />
+            <!-- input field hint -->
+            <mat-hint align="end">
+              Can contain only characters. Maximum
+              {{exampleForm.controls.companyName.value.length}}/25
+            </mat-hint>
+            <!-- input field error -->
+            <mat-error *ngIf="exampleForm.controls.companyName.invalid">
+              <span
+                [hidden]="!exampleForm.controls['companyName'].errors.required"
+              >
+                This field is required.
+              </span>
+              <span
+                [hidden]="!exampleForm.controls['companyName'].errors.maxlength"
+              >
+                Maximmum alowed charactes are 25
+              </span>
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Country input field -->
+          <mat-form-field class="example-full-width">
+            <input
+              matInput
+              placeholder="Country"
+              formControlName="countryName"
+            />
+            <mat-hint align="end"
+              >Your IP country name loaded from ipapi.co/json/</mat-hint
+            >
+          </mat-form-field>
+        </div>
+
+        <div
+          fxLayout="row"
+          fxLayout.xs="column"
+          fxLayoutWrap
+          fxLayoutGap="3.5%"
+          fxLayoutAlign="center"
+          layout-margin
+        >
+          <!-- Street input field -->
+          <mat-form-field class="example-full-width">
+            <input
+              matInput
+              placeholder="Street"
+              fxFlex="75%"
+              formControlName="street"
+            />
+          </mat-form-field>
+
+          <!-- City input field -->
+          <mat-form-field class="example-full-width">
+            <input matInput placeholder="City" formControlName="city" />
+            <mat-hint align="end"
+              >City name loaded from ipapi.co/json/</mat-hint
+            >
+          </mat-form-field>
+
+          <!-- Zip code input field -->
+          <mat-form-field class="example-full-width" fxFlex="20%">
+            <input matInput placeholder="Zip" formControlName="zipCode" />
+            <mat-hint align="end">Zip loaded from ipapi.co/json/</mat-hint>
+          </mat-form-field>
+        </div>
+        <br />
+
+        <!-- Start form units array with first row must and dynamically add more -->
+        <mat-card formArrayName="units">
+          <mat-card-title>Units</mat-card-title>
+          <mat-divider></mat-divider>
+
+          <!-- loop throught units -->
+          <div
+            *ngFor="let unit of exampleForm.controls.units.controls; let i=index"
+          >
+            <!-- row divider show for every nex row exclude if first row -->
+            <mat-divider
+              *ngIf="exampleForm.controls.units.controls.length > 1 && i > 0"
+            ></mat-divider
+            ><br />
+
+            <!-- group name in this case row index -->
+            <div [formGroupName]="i">
+              <div
+                fxLayout="row"
+                fxLayout.xs="column"
+                fxLayoutWrap
+                fxLayoutGap="3.5%"
+                fxLayoutAlign="center"
+              >
+                <!-- unit name input field -->
+                <mat-form-field fxFlex="30%">
+                  <input
+                    matInput
+                    placeholder="Unit name"
+                    formControlName="unitName"
+                    required
+                  />
+                  <!-- input field error -->
+                  <mat-error *ngIf="unit.controls.unitName.invalid">
+                    Unit name is required.
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- unit quantity input field -->
+                <mat-form-field fxFlex="10%" fxFlex.xs="20">
+                  <input
+                    matInput
+                    placeholder="Quantity"
+                    type="number"
+                    formControlName="qty"
+                    required
+                  />
+                </mat-form-field>
+
+                <!-- unit price input field -->
+                <mat-form-field fxFlex="20%" fxFlex.xs="grow">
+                  <input
+                    matInput
+                    placeholder="Unit price"
+                    type="number"
+                    formControlName="unitPrice"
+                    required
+                  />
+                </mat-form-field>
+
+                <!-- unit total price input field, calculated and not editable -->
+                <div fxLayout.xs="row">
+                  <mat-form-field>
+                    <input
+                      matInput
+                      placeholder="Total sum"
+                      formControlName="unitTotalPrice"
+                    />
+                  </mat-form-field>
+
+                  <!-- row delete button, hidden if there is just one row -->
+                  <button
+                    type="button"
+                    mat-mini-fab
+                    color="warn"
+                    fxFlex="nogrow"
+                    *ngIf="exampleForm.controls.units.controls.length > 1"
+                    (click)="removeUnit(i)"
+                  >
+                    <mat-icon>delete forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- New unit button -->
+          <mat-divider></mat-divider>
+          <mat-card-actions>
+            <button type="button" mat-raised-button (click)="addUnit()">
+              <mat-icon>add box</mat-icon>
+              Add new unit
+            </button>
+            <button type="button" mat-raised-button (click)="clearAllUnits()">
+              <mat-icon>remove_circle</mat-icon>
+              Clear all
+            </button>
+            <button
+              type="button"
+              mat-raised-button
+              (click)="addSomeUnitsFromArrayExample()"
+            >
+              <mat-icon>add box</mat-icon>
+              Add example units
+            </button>
+          </mat-card-actions>
+        </mat-card>
+        <!-- End form units array -->
+        <br />
+        <!-- Total price calculation formated with angular currency pipe -->
+        <mat-card>
+          Total price is {{ totalSum | currency:'USD':'symbol-narrow':'1.2-2'}}
+        </mat-card>
+      </mat-card-content>
+
+      <!-- Form submit button enabled on if form is valid -->
+      <mat-card-actions
+        ><button mat-button [disabled]="exampleForm.invalid">
+          Submit
+        </button></mat-card-actions
+      >
+    </form>
+    <!-- Page form end -->
+  </mat-card>
+</div>
